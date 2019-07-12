@@ -1,0 +1,25 @@
+{
+  "name": "figma-walker",
+  "version": "0.1.0",
+  "main": "index.js",
+  "repository": "git@github.com:kawamurakazushi/figma-walker.git",
+  "author": "Kazushi Kawamura <wakaka2277@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "css-loader": "^3.0.0",
+    "html-webpack-inline-source-plugin": "^0.0.10",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.23.1",
+    "typescript": "^3.5.2",
+    "webpack-cli": "^3.3.4"
+  },
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack -w"
+  },
+  "dependencies": {
+    "preact": "10.0.0-beta.3",
+    "ts-loader": "^6.0.3",
+    "webpack": "^4.35.0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Figma Walker",
+  "id": "731308236613722552",
+  "api": "0.6.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html"
+}
