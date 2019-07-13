@@ -9,4 +9,5 @@ export interface Store {
   search: string;
   selected: number;
   items: Item[];
+  loading: boolean;
 }

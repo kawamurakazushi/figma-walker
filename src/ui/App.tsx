@@ -57,7 +57,11 @@ const App = () => {
         }
 
         case "SET_ITEMS": {
-          return { ...state, items: [...state.items, ...action.items] };
+          return {
+            ...state,
+            items: [...state.items, ...action.items],
+            loading: false
+          };
         }
         default:
           return state;
@@ -66,24 +70,28 @@ const App = () => {
     {
       search: "",
       selected: 0,
-      items: []
+      items: [],
+      loading: true
     }
   );
 
   const downPressed = useKeyPress("ArrowDown");
   const upPressed = useKeyPress("ArrowUp");
   const enterPressed = useKeyPress("Enter");
+  const ctrlPressed = useKeyPress("Control");
+  const nPressed = useKeyPress("n");
+  const pPressed = useKeyPress("p");
 
   const items = store.items.filter(v =>
     v.name.toLowerCase().includes(store.search)
   );
 
   useEffect(() => {
-    if (downPressed) {
+    if (downPressed || (ctrlPressed && nPressed)) {
       dispatch({ type: "NEXT" });
     }
 
-    if (upPressed) {
+    if (upPressed || (ctrlPressed && pPressed)) {
       dispatch({ type: "PREV" });
     }
 
@@ -91,7 +99,7 @@ const App = () => {
       const item = items[store.selected];
       postItem(item);
     }
-  }, [downPressed, upPressed, enterPressed]);
+  }, [downPressed, upPressed, enterPressed, ctrlPressed, nPressed, pPressed]);
 
   const input = useRef(null);
   useEffect(() => {
@@ -138,35 +146,44 @@ const App = () => {
           dispatch({ type: "INPUT_SEARCH", value: e.target.value })
         }
       />
-      <div style={{ overflow: "auto" }}>
-        {items.map((v, i) => {
-          const style =
-            store.selected === i
-              ? { backgroundColor: "rgba(24, 160, 251, 0.3)" }
-              : {};
-          return (
-            <div
-              className="type--12-pos"
-              style={{
-                ...style,
-                ...{ padding: 8, cursor: "pointer", display: "flex" }
-              }}
-              key={i}
-              onMouseEnter={() => dispatch({ type: "GO_TO", index: i })}
-              onClick={() => postItem(items[i])}
-            >
-              {v.type === "COMPONENT" ? <Component /> : <Frame />}
-              <div style={{ margin: "0 8px" }}>{v.name}</div>
-              <div style={{ color: "rgba(0, 0, 0, 0.3)" }}>{v.page}</div>
+      {store.loading ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <img
+            style={{ width: 30, height: 30 }}
+            src="https://loading.io/spinners/rolling/index.curve-bars-loading-indicator.gif"
+          />
+        </div>
+      ) : (
+        <div style={{ overflow: "auto" }}>
+          {items.map((v, i) => {
+            const style =
+              store.selected === i
+                ? { backgroundColor: "rgba(24, 160, 251, 0.3)" }
+                : {};
+            return (
+              <div
+                className="type--12-pos"
+                style={{
+                  ...style,
+                  ...{ padding: 8, cursor: "pointer", display: "flex" }
+                }}
+                key={i}
+                onMouseEnter={() => dispatch({ type: "GO_TO", index: i })}
+                onClick={() => postItem(items[i])}
+              >
+                {v.type === "COMPONENT" ? <Component /> : <Frame />}
+                <div style={{ margin: "0 8px" }}>{v.name}</div>
+                <div style={{ color: "rgba(0, 0, 0, 0.3)" }}>{v.page}</div>
+              </div>
+            );
+          })}
+          {items.length === 0 && (
+            <div className="type--11-pos" style={{ padding: "0 8px" }}>
+              No result found.
             </div>
-          );
-        })}
-        {items.length === 0 && (
-          <div className="type--11-pos" style={{ padding: "0 8px" }}>
-            No result found.
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

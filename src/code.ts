@@ -1,4 +1,4 @@
-figma.showUI(__html__, { width: 600, height: 300 });
+figma.showUI(__html__, { width: 600, height: 310 });
 
 // const rootFrames = figma.currentPage.children;
 const root = figma.root;
