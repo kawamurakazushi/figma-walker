@@ -2,10 +2,14 @@ import { h, render } from "preact";
 import { useRef, useEffect, useReducer, useState } from "preact/hooks";
 
 import { useKeyPress } from "./hooks/useKeyPress";
-import { Action } from "./actions";
-import { Store, Item } from "./store";
 import { Frame } from "./icons/Frame";
 import { Component } from "./icons/Component";
+import {
+  useStoreReducer,
+  filterItemsSelector,
+  Item,
+  modeSelector
+} from "./hooks/useStoreReducer";
 
 import "./figma-ui.min.css";
 
@@ -21,67 +25,8 @@ const postItem = (item: Item | undefined) => {
   }
 };
 
-// returns filtered items
-const filterItems = (items: Item[], search: String) =>
-  items.filter(v => v.name.toLowerCase().includes(search.toLowerCase()));
-
 const App = () => {
-  const [store, dispatch] = useReducer<Store, Action>(
-    (state, action) => {
-      switch (action.type) {
-        case "INPUT_SEARCH":
-          return {
-            ...state,
-            search: action.value,
-            selected: 0
-          };
-
-        case "NEXT": {
-          return state.selected >=
-            filterItems(state.items, state.search).length - 1
-            ? { ...state, selected: 0 }
-            : {
-                ...state,
-                selected: state.selected + 1
-              };
-        }
-
-        case "PREV": {
-          if (state.selected > 0) {
-            return {
-              ...state,
-              selected: state.selected - 1
-            };
-          }
-
-          return state;
-        }
-
-        case "GO_TO": {
-          return {
-            ...state,
-            selected: action.index
-          };
-        }
-
-        case "SET_ITEMS": {
-          return {
-            ...state,
-            items: [...state.items, ...action.items],
-            loading: false
-          };
-        }
-        default:
-          return state;
-      }
-    },
-    {
-      search: "",
-      selected: 0,
-      items: [],
-      loading: true
-    }
-  );
+  const [store, dispatch] = useStoreReducer();
 
   const downPressed = useKeyPress("ArrowDown");
   const upPressed = useKeyPress("ArrowUp");
@@ -90,7 +35,7 @@ const App = () => {
   const nPressed = useKeyPress("n");
   const pPressed = useKeyPress("p");
 
-  const items = filterItems(store.items, store.search);
+  const items = filterItemsSelector(store);
 
   useEffect(() => {
     if (downPressed || (ctrlPressed && nPressed)) {
@@ -151,12 +96,12 @@ const App = () => {
           dispatch({ type: "INPUT_SEARCH", value: e.target.value })
         }
       />
+      {modeSelector(store) === "insert" && (
+        <div className="type--12-pos">Insert Components</div>
+      )}
       {store.loading ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <img
-            style={{ width: 30, height: 30 }}
-            src="https://loading.io/spinners/rolling/index.curve-bars-loading-indicator.gif"
-          />
+          <div className="type--12-pos">loading...</div>
         </div>
       ) : (
         <div style={{ overflow: "auto" }}>
