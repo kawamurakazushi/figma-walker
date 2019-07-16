@@ -9,6 +9,7 @@ import { Component } from "./icons/Component";
 
 import "./figma-ui.min.css";
 
+// send the selected item to Figma
 const postItem = (item: Item | undefined) => {
   if (item) {
     parent.postMessage(
@@ -19,6 +20,10 @@ const postItem = (item: Item | undefined) => {
     );
   }
 };
+
+// returns filtered items
+const filterItems = (items: Item[], search: String) =>
+  items.filter(v => v.name.toLowerCase().includes(search.toLowerCase()));
 
 const App = () => {
   const [store, dispatch] = useReducer<Store, Action>(
@@ -32,10 +37,13 @@ const App = () => {
           };
 
         case "NEXT": {
-          return {
-            ...state,
-            selected: state.selected + 1
-          };
+          return state.selected >=
+            filterItems(state.items, state.search).length - 1
+            ? { ...state, selected: 0 }
+            : {
+                ...state,
+                selected: state.selected + 1
+              };
         }
 
         case "PREV": {
@@ -82,9 +90,7 @@ const App = () => {
   const nPressed = useKeyPress("n");
   const pPressed = useKeyPress("p");
 
-  const items = store.items.filter(v =>
-    v.name.toLowerCase().includes(store.search)
-  );
+  const items = filterItems(store.items, store.search);
 
   useEffect(() => {
     if (downPressed || (ctrlPressed && nPressed)) {
@@ -115,7 +121,6 @@ const App = () => {
     );
     onmessage = event => {
       const message = event.data.pluginMessage;
-      console.log(message);
       if (message) {
         if (message.type === "FRAME") {
           dispatch({ type: "SET_ITEMS", items: message.data });
