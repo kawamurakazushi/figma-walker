@@ -8,20 +8,33 @@ import {
   useStoreReducer,
   filterItemsSelector,
   Item,
-  modeSelector
+  modeSelector,
+  Mode
 } from "./hooks/useStoreReducer";
 
 import "./figma-ui.min.css";
 
 // send the selected item to Figma
-const postItem = (item: Item | undefined) => {
+const postItem = (item: Item | undefined, mode: Mode) => {
   if (item) {
-    parent.postMessage(
-      {
-        pluginMessage: { type: "select", id: item.id }
-      },
-      "*"
-    );
+    switch (mode) {
+      case "jump": {
+        parent.postMessage(
+          {
+            pluginMessage: { type: "JUMP", id: item.id }
+          },
+          "*"
+        );
+      }
+      case "insert": {
+        parent.postMessage(
+          {
+            pluginMessage: { type: "INSERT", id: item.id }
+          },
+          "*"
+        );
+      }
+    }
   }
 };
 
@@ -48,7 +61,7 @@ const App = () => {
 
     if (enterPressed) {
       const item = items[store.selected];
-      postItem(item);
+      postItem(item, modeSelector(store));
     }
   }, [downPressed, upPressed, enterPressed, ctrlPressed, nPressed, pPressed]);
 
@@ -119,7 +132,7 @@ const App = () => {
                 }}
                 key={i}
                 onMouseEnter={() => dispatch({ type: "GO_TO", index: i })}
-                onClick={() => postItem(items[i])}
+                onClick={() => postItem(items[i], modeSelector(store))}
               >
                 {v.type === "COMPONENT" ? <Component /> : <Frame />}
                 <div style={{ margin: "0 8px" }}>{v.name}</div>

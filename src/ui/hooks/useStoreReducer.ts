@@ -55,18 +55,29 @@ export type Action =
 
 // Selectors
 
-type Mode = "jump" | "insert";
+const insertCmd = "i";
 
-export const filterItemsSelector = (store: Store): Item[] =>
-  store.items.filter(v =>
+export type Mode = "jump" | "insert";
+
+export const filterItemsSelector = (store: Store): Item[] => {
+  if (modeSelector(store) === "insert") {
+    return componentsSelector(store).filter(v =>
+      v.name
+        .toLowerCase()
+        .includes(store.search.substr(insertCmd.length + 1).toLowerCase())
+    );
+  }
+
+  return store.items.filter(v =>
     v.name.toLowerCase().includes(store.search.toLowerCase())
   );
+};
 
 export const componentsSelector = (store: Store): Item[] =>
   store.items.filter(v => v.type === "COMPONENT");
 
 export const modeSelector = (store: Store): Mode => {
-  if (store.search.indexOf("i ") == 0) {
+  if (store.search.indexOf(`${insertCmd} `) == 0) {
     return "insert";
   }
 
