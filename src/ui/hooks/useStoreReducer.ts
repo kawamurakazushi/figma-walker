@@ -14,6 +14,7 @@ export interface Store {
   selected: number;
   items: Item[];
   loading: boolean;
+  scrollTop: number;
 }
 
 // Actions
@@ -46,12 +47,18 @@ export interface SetItemsAction {
   items: Item[];
 }
 
+export interface SetScrollTopAction {
+  type: "SET_SCROLL_TOP";
+  scrollTop: number;
+}
+
 export type Action =
   | InputSearchAction
   | NextAction
   | PrevAction
   | GoToAction
-  | SetItemsAction;
+  | SetItemsAction
+  | SetScrollTopAction;
 
 // Selectors
 
@@ -132,6 +139,13 @@ export const useStoreReducer = () =>
           };
         }
 
+        case "SET_SCROLL_TOP": {
+          return {
+            ...state,
+            scrollTop: action.scrollTop
+          };
+        }
+
         default:
           return state;
       }
@@ -140,6 +154,7 @@ export const useStoreReducer = () =>
       search: "",
       selected: 0,
       items: [],
-      loading: true
+      loading: true,
+      scrollTop: 0
     }
   );

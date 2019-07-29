@@ -97,6 +97,37 @@ const App = () => {
     };
   }, []);
 
+  const wrapper = useRef(null);
+
+  useEffect(() => {
+    if (wrapper.current) {
+      if (store.selected === 0) {
+        wrapper.current.scrollTo(0, 0);
+        return;
+      }
+      const blockHeight = 32;
+      const offset = (store.selected + 1) * blockHeight;
+      const displayOffset = store.scrollTop + 256;
+
+      // scroll down
+      if (displayOffset < offset) {
+        wrapper.current.scrollTo(0, store.scrollTop + blockHeight);
+      }
+
+      // scroll up
+      if (store.scrollTop >= offset) {
+        wrapper.current.scrollTo(0, store.scrollTop - blockHeight);
+      }
+    }
+  }, [store.selected]);
+
+  const onResultScroll = e => {
+    const target = e.currentTarget;
+    if (target) {
+      dispatch({ type: "SET_SCROLL_TOP", scrollTop: target.scrollTop });
+    }
+  };
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <input
@@ -109,15 +140,17 @@ const App = () => {
           dispatch({ type: "INPUT_SEARCH", value: e.target.value })
         }
       />
-      {modeSelector(store) === "insert" && (
-        <div className="type--12-pos">Insert Components</div>
-      )}
       {store.loading ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div className="type--12-pos">loading...</div>
         </div>
       ) : (
-        <div style={{ overflow: "auto" }}>
+        <div
+          id="result"
+          onScroll={onResultScroll}
+          ref={wrapper}
+          style={{ overflow: "auto" }}
+        >
           {items.map((v, i) => {
             const style =
               store.selected === i
