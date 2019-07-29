@@ -2,86 +2,44 @@ import { h, render } from "preact";
 import { useRef, useEffect, useReducer, useState } from "preact/hooks";
 
 import { useKeyPress } from "./hooks/useKeyPress";
-import { Action } from "./actions";
-import { Store, Item } from "./store";
 import { Frame } from "./icons/Frame";
 import { Component } from "./icons/Component";
+import {
+  useStoreReducer,
+  filterItemsSelector,
+  Item,
+  modeSelector,
+  Mode
+} from "./hooks/useStoreReducer";
 
 import "./figma-ui.min.css";
 
 // send the selected item to Figma
-const postItem = (item: Item | undefined) => {
+const postItem = (item: Item | undefined, mode: Mode) => {
   if (item) {
-    parent.postMessage(
-      {
-        pluginMessage: { type: "select", id: item.id }
-      },
-      "*"
-    );
+    switch (mode) {
+      case "jump": {
+        parent.postMessage(
+          {
+            pluginMessage: { type: "JUMP", id: item.id }
+          },
+          "*"
+        );
+      }
+      case "insert": {
+        parent.postMessage(
+          {
+            pluginMessage: { type: "INSERT", id: item.id }
+          },
+          "*"
+        );
+      }
+    }
   }
 };
 
-// returns filtered items
-const filterItems = (items: Item[], search: String) =>
-  items.filter(v => v.name.toLowerCase().includes(search.toLowerCase()));
-
 const App = () => {
-  const [store, dispatch] = useReducer<Store, Action>(
-    (state, action) => {
-      switch (action.type) {
-        case "INPUT_SEARCH":
-          return {
-            ...state,
-            search: action.value,
-            selected: 0
-          };
-
-        case "NEXT": {
-          return state.selected >=
-            filterItems(state.items, state.search).length - 1
-            ? { ...state, selected: 0 }
-            : {
-                ...state,
-                selected: state.selected + 1
-              };
-        }
-
-        case "PREV": {
-          if (state.selected > 0) {
-            return {
-              ...state,
-              selected: state.selected - 1
-            };
-          }
-
-          return state;
-        }
-
-        case "GO_TO": {
-          return {
-            ...state,
-            selected: action.index
-          };
-        }
-
-        case "SET_ITEMS": {
-          return {
-            ...state,
-            items: [...state.items, ...action.items],
-            loading: false
-          };
-        }
-        default:
-          return state;
-      }
-    },
-    {
-      search: "",
-      selected: 0,
-      items: [],
-      loading: true
-    }
-  );
+  const [store, dispatch] = useStoreReducer();
 
   const downPressed = useKeyPress("ArrowDown");
   const upPressed = useKeyPress("ArrowUp");
@@ -90,7 +48,7 @@ const App = () => {
   const nPressed = useKeyPress("n");
   const pPressed = useKeyPress("p");
 
-  const items = filterItems(store.items, store.search);
+  const items = filterItemsSelector(store);
 
   useEffect(() => {
     if (downPressed || (ctrlPressed && nPressed)) {
@@ -103,7 +61,7 @@ const App = () => {
 
     if (enterPressed) {
       const item = items[store.selected];
-      postItem(item);
+      postItem(item, modeSelector(store));
     }
   }, [downPressed, upPressed, enterPressed, ctrlPressed, nPressed, pPressed]);
 
@@ -139,6 +97,37 @@ const App = () => {
     };
   }, []);
 
+  const wrapper = useRef(null);
+
+  useEffect(() => {
+    if (wrapper.current) {
+      if (store.selected === 0) {
+        wrapper.current.scrollTo(0, 0);
+        return;
+      }
+      const blockHeight = 32;
+      const offset = (store.selected + 1) * blockHeight;
+      const displayOffset = store.scrollTop + 256;
+
+      // scroll down
+      if (displayOffset < offset) {
+        wrapper.current.scrollTo(0, store.scrollTop + blockHeight);
+      }
+
+      // scroll up
+      if (store.scrollTop >= offset) {
+        wrapper.current.scrollTo(0, store.scrollTop - blockHeight);
+      }
+    }
+  }, [store.selected]);
+
+  const onResultScroll = e => {
+    const target = e.currentTarget;
+    if (target) {
+      dispatch({ type: "SET_SCROLL_TOP", scrollTop: target.scrollTop });
+    }
+  };
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <input
@@ -153,13 +142,15 @@ const App = () => {
       />
       {store.loading ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <img
-            style={{ width: 30, height: 30 }}
-            src="https://loading.io/spinners/rolling/index.curve-bars-loading-indicator.gif"
-          />
+          <div className="type--12-pos">loading...</div>
         </div>
       ) : (
-        <div style={{ overflow: "auto" }}>
+        <div
+          id="result"
+          onScroll={onResultScroll}
+          ref={wrapper}
+          style={{ overflow: "auto" }}
+        >
           {items.map((v, i) => {
             const style =
               store.selected === i
@@ -174,7 +165,7 @@ const App = () => {
                 }}
                 key={i}
                 onMouseEnter={() => dispatch({ type: "GO_TO", index: i })}
-                onClick={() => postItem(items[i])}
+                onClick={() => postItem(items[i], modeSelector(store))}
               >
                 {v.type === "COMPONENT" ? <Component /> : <Frame />}
                 <div style={{ margin: "0 8px" }}>{v.name}</div>

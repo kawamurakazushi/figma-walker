@@ -25,7 +25,7 @@ const topFrames = root.children
   }, []);
 
 figma.ui.onmessage = msg => {
-  if (msg.type === "select") {
+  if (msg.type === "JUMP") {
     const nodeId = msg.id;
     const node = figma.getNodeById(nodeId);
 
@@ -35,6 +35,23 @@ figma.ui.onmessage = msg => {
     }
 
     figma.viewport.scrollAndZoomIntoView([node]);
+
+    figma.closePlugin();
+  }
+
+  if (msg.type === "INSERT") {
+    const nodeId = msg.id;
+    const node = figma.getNodeById(nodeId);
+
+    if (node.type === "COMPONENT") {
+      const { x, y } = figma.viewport.center;
+      const instance = node.createInstance();
+
+      instance.x = x;
+      instance.y = y;
+      figma.currentPage.appendChild(instance);
+      figma.currentPage.selection = [instance];
+    }
 
     figma.closePlugin();
   }
