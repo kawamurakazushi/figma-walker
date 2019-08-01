@@ -8,24 +8,25 @@ You can walk through your project without lifting your keyboard.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
-![hero](images/hero.jpg)
+![hero](images/hero.png)
 
 ## Usage (Keybinding)
 
 #### Jumps
 
-- Select Down
-Arrow Down Key / Ctrl + n
+| Description                         | Shortcut                  |
+| ----------------------------------- | ------------------------- |
+| Select Down                         | Arrow Down Key / Ctrl + n |
+| Select Up                           | Arrow Up Key / Ctrl + p   |
+| Jump to selected Frame or Component | Enter / Mouse Click       |
 
-- Select Up
-Arrow Up Key / Ctrl + p
-
-- Jump to selected Frame or Component.
-Enter / Mouse Click
+![jump](images/jump.gif)
 
 #### Insert Component
 
-Prefix with search field with "i ".
+Prefix the search field with "i ".
+
+![jump](images/insert.gif)
 
 ## Installation
 https://www.figma.com/c/plugin/732773762837487095/Figma-Walker
