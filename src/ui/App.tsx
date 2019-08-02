@@ -1,8 +1,9 @@
 import { h, render } from "preact";
-import { useRef, useEffect, useReducer, useState } from "preact/hooks";
+import { useRef, useEffect } from "preact/hooks";
 
 import { useKeyPress } from "./hooks/useKeyPress";
 import { Frame } from "./icons/Frame";
+import { Page } from "./icons/Page";
 import { Component } from "./icons/Component";
 import {
   useStoreReducer,
@@ -169,7 +170,13 @@ const App = () => {
                 onMouseEnter={() => dispatch({ type: "GO_TO", index: i })}
                 onClick={() => postItem(items[i], modeSelector(store))}
               >
-                {v.type === "COMPONENT" ? <Component /> : <Frame />}
+                {v.type === "COMPONENT" ? (
+                  <Component />
+                ) : v.type === "PAGE" ? (
+                  <Page />
+                ) : (
+                  <Frame />
+                )}
                 <div style={{ margin: "0 8px" }}>{v.name}</div>
                 <div style={{ color: "rgba(0, 0, 0, 0.3)" }}>{v.page}</div>
               </div>
