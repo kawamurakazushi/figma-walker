@@ -25,6 +25,7 @@ const postItem = (item: Item | undefined, mode: Mode) => {
           },
           "*"
         );
+        return;
       }
       case "insert": {
         parent.postMessage(
@@ -33,6 +34,7 @@ const postItem = (item: Item | undefined, mode: Mode) => {
           },
           "*"
         );
+        return;
       }
     }
   }
