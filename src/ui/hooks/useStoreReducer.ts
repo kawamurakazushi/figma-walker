@@ -67,17 +67,42 @@ const insertCmd = "i";
 export type Mode = "jump" | "insert";
 
 export const filterItemsSelector = (store: Store): Item[] => {
+  const fuzzysearch = (needle: string, haystack: string) => {
+    const hlen = haystack.length;
+    const nlen = needle.length;
+    if (nlen > hlen) {
+      return false;
+    }
+
+    if (nlen === hlen) {
+      return needle === haystack;
+    }
+
+    outer: for (let i = 0, j = 0; i < nlen; i++) {
+      let nch = needle.charCodeAt(i);
+      while (j < hlen) {
+        if (haystack.charCodeAt(j++) === nch) {
+          continue outer;
+        }
+      }
+      return false;
+    }
+
+    return true;
+  };
+
   if (modeSelector(store) === "insert") {
-    return componentsSelector(store).filter(v =>
-      v.name
-        .toLowerCase()
-        .includes(store.search.substr(insertCmd.length + 1).toLowerCase())
-    );
+    return componentsSelector(store).filter(v => {
+      return fuzzysearch(
+        store.search.substr(insertCmd.length + 1).toLowerCase(),
+        v.name.toLowerCase()
+      );
+    });
   }
 
-  return store.items.filter(v =>
-    v.name.toLowerCase().includes(store.search.toLowerCase())
-  );
+  return store.items.filter(v => {
+    return fuzzysearch(store.search.toLowerCase(), v.name.toLowerCase());
+  });
 };
 
 export const componentsSelector = (store: Store): Item[] =>
