@@ -3,6 +3,7 @@ import { useRef, useEffect } from "preact/hooks";
 
 import { useKeyPress } from "./hooks/useKeyPress";
 import { Frame } from "./icons/Frame";
+import { Code } from "./icons/Code";
 import { Page } from "./icons/Page";
 import { Component } from "./icons/Component";
 import {
@@ -14,32 +15,6 @@ import {
 } from "./hooks/useStoreReducer";
 
 import "./figma-ui.min.css";
-
-// send the selected item to Figma
-const postItem = (item: Item | undefined, mode: Mode) => {
-  if (item) {
-    switch (mode) {
-      case "jump": {
-        parent.postMessage(
-          {
-            pluginMessage: { type: "JUMP", id: item.id }
-          },
-          "*"
-        );
-        return;
-      }
-      case "insert": {
-        parent.postMessage(
-          {
-            pluginMessage: { type: "INSERT", id: item.id }
-          },
-          "*"
-        );
-        return;
-      }
-    }
-  }
-};
 
 const App = () => {
   const [store, dispatch] = useStoreReducer();
@@ -131,6 +106,37 @@ const App = () => {
     }
   };
 
+  // send the selected item to Figma
+  const postItem = (item: Item | undefined, mode: Mode) => {
+    if (item) {
+      switch (mode) {
+        case "help": {
+          dispatch({ type: "SET_MODE", mode: "insert" });
+          return;
+        }
+
+        case "jump": {
+          parent.postMessage(
+            {
+              pluginMessage: { type: "JUMP", id: item.id }
+            },
+            "*"
+          );
+          return;
+        }
+        case "insert": {
+          parent.postMessage(
+            {
+              pluginMessage: { type: "INSERT", id: item.id }
+            },
+            "*"
+          );
+          return;
+        }
+      }
+    }
+  };
+
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <input
@@ -138,7 +144,8 @@ const App = () => {
         className="input"
         style={{ marginBottom: 8 }}
         type="text"
-        placeholder="Jump to a Frame in your current page"
+        placeholder="Type '?' to see list actions you can take from here"
+        value={store.search}
         onInput={(e: any) =>
           dispatch({ type: "INPUT_SEARCH", value: e.target.value })
         }
@@ -174,6 +181,8 @@ const App = () => {
                   <Component />
                 ) : v.type === "PAGE" ? (
                   <Page />
+                ) : v.type === "COMMAND" ? (
+                  <Code />
                 ) : (
                   <Frame />
                 )}

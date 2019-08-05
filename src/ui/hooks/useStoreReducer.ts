@@ -5,7 +5,7 @@ import { useReducer } from "preact/hooks";
 export interface Item {
   id: string;
   name: string;
-  type: "PAGE" | "FRAME" | "COMPONENT";
+  type: "PAGE" | "FRAME" | "COMPONENT" | "COMMAND";
   page: string | null;
 }
 
@@ -47,6 +47,11 @@ export interface SetItemsAction {
   items: Item[];
 }
 
+export interface SetModeAction {
+  type: "SET_MODE";
+  mode: Mode;
+}
+
 export interface SetScrollTopAction {
   type: "SET_SCROLL_TOP";
   scrollTop: number;
@@ -58,13 +63,15 @@ export type Action =
   | PrevAction
   | GoToAction
   | SetItemsAction
+  | SetModeAction
   | SetScrollTopAction;
 
 // Selectors
 
 const insertCmd = "i";
+const helpCmd = "?";
 
-export type Mode = "jump" | "insert";
+export type Mode = "jump" | "insert" | "help";
 
 export const filterItemsSelector = (store: Store): Item[] => {
   const fuzzysearch = (needle: string, haystack: string) => {
@@ -91,6 +98,13 @@ export const filterItemsSelector = (store: Store): Item[] => {
     return true;
   };
 
+  if (modeSelector(store) === "help") {
+    return [
+      { id: "insert", name: "Insert Component", type: "COMMAND", page: "i" }
+      // { id: "apply", name: "Apply Styles", type: "COMMAND", page: "a" }
+    ];
+  }
+
   if (modeSelector(store) === "insert") {
     return componentsSelector(store).filter(v => {
       return fuzzysearch(
@@ -109,6 +123,10 @@ export const componentsSelector = (store: Store): Item[] =>
   store.items.filter(v => v.type === "COMPONENT");
 
 export const modeSelector = (store: Store): Mode => {
+  if (store.search.indexOf(helpCmd) == 0) {
+    return "help";
+  }
+
   if (store.search.indexOf(`${insertCmd} `) == 0) {
     return "insert";
   }
@@ -168,6 +186,13 @@ export const useStoreReducer = () =>
           return {
             ...state,
             scrollTop: action.scrollTop
+          };
+        }
+
+        case "SET_MODE": {
+          return {
+            ...state,
+            search: action.mode === "insert" ? `${insertCmd} ` : ""
           };
         }
 

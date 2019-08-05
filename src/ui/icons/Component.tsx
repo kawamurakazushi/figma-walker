@@ -1,5 +1,4 @@
 import { h } from "preact";
-// #7B5AFF
 
 const Component = () => (
   <svg
