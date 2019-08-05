@@ -1,6 +1,10 @@
 figma.showUI(__html__, { width: 600, height: 310 });
 
 figma.ui.onmessage = msg => {
+  if (msg.type === "CLOSE") {
+    figma.closePlugin();
+  }
+
   if (msg.type === "JUMP") {
     const nodeId = msg.id;
     const node = figma.getNodeById(nodeId);

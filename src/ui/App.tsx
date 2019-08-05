@@ -25,6 +25,7 @@ const App = () => {
   const ctrlPressed = useKeyPress("Control");
   const nPressed = useKeyPress("n");
   const pPressed = useKeyPress("p");
+  const escPressed = useKeyPress("Escape");
 
   const items = filterItemsSelector(store);
 
@@ -41,7 +42,19 @@ const App = () => {
       const item = items[store.selected];
       postItem(item, modeSelector(store));
     }
-  }, [downPressed, upPressed, enterPressed, ctrlPressed, nPressed, pPressed]);
+
+    if (escPressed) {
+      parent.postMessage({ pluginMessage: { type: "CLOSE" } }, "*");
+    }
+  }, [
+    downPressed,
+    upPressed,
+    enterPressed,
+    ctrlPressed,
+    nPressed,
+    pPressed,
+    escPressed
+  ]);
 
   const input = useRef(null);
   useEffect(() => {
