@@ -9,9 +9,8 @@ import { Component } from "./icons/Component";
 import {
   useStoreReducer,
   filterItemsSelector,
-  Item,
   modeSelector,
-  Mode
+  send
 } from "./hooks/useStoreReducer";
 
 import "./figma-ui.min.css";
@@ -39,8 +38,7 @@ const App = () => {
     }
 
     if (enterPressed) {
-      const item = items[store.selected];
-      postItem(item, modeSelector(store));
+      send(store, dispatch);
     }
 
     if (escPressed) {
@@ -59,9 +57,6 @@ const App = () => {
   const input = useRef(null);
   useEffect(() => {
     input.current.focus();
-  }, []);
-
-  useEffect(() => {
     parent.postMessage(
       {
         pluginMessage: { type: "FETCH_FRAMES" }
@@ -119,37 +114,6 @@ const App = () => {
     }
   };
 
-  // send the selected item to Figma
-  const postItem = (item: Item | undefined, mode: Mode) => {
-    if (item) {
-      switch (mode) {
-        case "help": {
-          dispatch({ type: "SET_MODE", mode: "insert" });
-          return;
-        }
-
-        case "jump": {
-          parent.postMessage(
-            {
-              pluginMessage: { type: "JUMP", id: item.id }
-            },
-            "*"
-          );
-          return;
-        }
-        case "insert": {
-          parent.postMessage(
-            {
-              pluginMessage: { type: "INSERT", id: item.id }
-            },
-            "*"
-          );
-          return;
-        }
-      }
-    }
-  };
-
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <input
@@ -188,13 +152,13 @@ const App = () => {
                 }}
                 key={i}
                 onMouseEnter={() => dispatch({ type: "GO_TO", index: i })}
-                onClick={() => postItem(items[i], modeSelector(store))}
+                onClick={() => send(store, dispatch)}
               >
                 {v.type === "COMPONENT" ? (
                   <Component />
                 ) : v.type === "PAGE" ? (
                   <Page />
-                ) : v.type === "COMMAND" ? (
+                ) : v.type === "insert" ? (
                   <Code />
                 ) : (
                   <Frame />

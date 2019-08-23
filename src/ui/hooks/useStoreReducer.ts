@@ -5,7 +5,7 @@ import { useReducer } from "preact/hooks";
 export interface Item {
   id: string;
   name: string;
-  type: "PAGE" | "FRAME" | "COMPONENT" | "COMMAND";
+  type: "PAGE" | "FRAME" | "COMPONENT" | "insert" | "create";
   page: string | null;
 }
 
@@ -69,9 +69,20 @@ export type Action =
 // Selectors
 
 const insertCmd = "i";
+const createCmd = "c";
 const helpCmd = "?";
 
-export type Mode = "jump" | "insert" | "help";
+export type Mode = "jump" | "insert" | "help" | "create";
+
+export const inputSelector = (store: Store) => (mode: Mode) => {
+  const length =
+    mode === "insert"
+      ? insertCmd.length + 1
+      : mode === "create"
+      ? createCmd.length + 1
+      : 0;
+  return store.search.substr(length);
+};
 
 export const filterItemsSelector = (store: Store): Item[] => {
   const fuzzysearch = (needle: string, haystack: string) => {
@@ -98,17 +109,43 @@ export const filterItemsSelector = (store: Store): Item[] => {
     return true;
   };
 
-  if (modeSelector(store) === "help") {
+  const mode = modeSelector(store);
+
+  if (mode === "help") {
     return [
-      { id: "insert", name: "Insert Component", type: "COMMAND", page: "i" }
-      // { id: "apply", name: "Apply Styles", type: "COMMAND", page: "a" }
+      { id: "insert", name: "Insert Component", type: "insert", page: "i" },
+      {
+        id: "create",
+        name: "Create Component / Styles",
+        type: "create",
+        page: "c"
+      }
+    ];
+  }
+
+  if (mode === "create") {
+    const name = inputSelector(store)("create");
+
+    return [
+      {
+        id: "create_component",
+        name: "Create Component named " + (name === "" ? "..." : name),
+        type: "create",
+        page: ""
+      }
+      // {
+      // //   // id: "create_style",
+      //   // name: "Create Component / Styles",
+      //   // type: "create",
+      //   // page: "c"
+      // }
     ];
   }
 
   if (modeSelector(store) === "insert") {
     return componentsSelector(store).filter(v => {
       return fuzzysearch(
-        store.search.substr(insertCmd.length + 1).toLowerCase(),
+        inputSelector(store)("insert").toLowerCase(),
         v.name.toLowerCase()
       );
     });
@@ -131,7 +168,66 @@ export const modeSelector = (store: Store): Mode => {
     return "insert";
   }
 
+  if (store.search.indexOf(`${createCmd} `) == 0) {
+    return "create";
+  }
+
   return "jump";
+};
+
+const selectedItemSelector = (store: Store) => {
+  const items = filterItemsSelector(store);
+  const selected = store.selected;
+
+  return items[selected];
+};
+
+// Side Effects
+
+export const send = (store: Store, dispatch: (action: Action) => void) => {
+  const item = selectedItemSelector(store);
+  const mode = modeSelector(store);
+
+  if (item) {
+    switch (mode) {
+      case "help": {
+        if (item.type === "insert" || item.type === "create") {
+          dispatch({ type: "SET_MODE", mode: item.type });
+        }
+        return;
+      }
+
+      case "create": {
+        const name = inputSelector(store)("create");
+        parent.postMessage(
+          {
+            pluginMessage: { type: "CREATE_COMPONENT", name }
+          },
+          "*"
+        );
+        return;
+      }
+
+      case "jump": {
+        parent.postMessage(
+          {
+            pluginMessage: { type: "JUMP", id: item.id }
+          },
+          "*"
+        );
+        return;
+      }
+      case "insert": {
+        parent.postMessage(
+          {
+            pluginMessage: { type: "INSERT", id: item.id }
+          },
+          "*"
+        );
+        return;
+      }
+    }
+  }
 };
 
 // Reducers
@@ -192,7 +288,12 @@ export const useStoreReducer = () =>
         case "SET_MODE": {
           return {
             ...state,
-            search: action.mode === "insert" ? `${insertCmd} ` : ""
+            search:
+              action.mode === "insert"
+                ? `${insertCmd} `
+                : action.mode === "create"
+                ? `${createCmd} `
+                : ""
           };
         }
 

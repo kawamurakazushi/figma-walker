@@ -50,7 +50,6 @@ figma.ui.onmessage = msg => {
       id: p.id,
       name: p.name,
       type: p.type
-      // page: p.name
     }));
 
     const topFrames = figma.root.children
@@ -81,5 +80,52 @@ figma.ui.onmessage = msg => {
         page: figma.currentPage.name
       }));
     figma.ui.postMessage({ type: "COMPONENT", data: components });
+  }
+
+  if (msg.type === "CREATE_COMPONENT") {
+    const selection = figma.currentPage.selection;
+    if (selection.length > 0) {
+      const component = figma.createComponent();
+
+      console.log(msg);
+      if (msg.name !== "") {
+        component.name = msg.name;
+      }
+
+      let x: number;
+      let y: number;
+      for (const child of selection) {
+        x = x ? Math.min(x, child.x) : child.x;
+        y = y ? Math.min(y, child.y) : child.y;
+      }
+
+      component.x = x;
+      component.y = y;
+
+      for (const child of selection) {
+        child.x = child.x - x;
+        child.y = child.y - y;
+        component.appendChild(child);
+      }
+
+      let width: number;
+      let height: number;
+      for (const child of selection) {
+        width = width
+          ? Math.max(width, child.x + child.width)
+          : child.x + child.width;
+
+        height = height
+          ? Math.max(height, child.y + child.height)
+          : child.y + child.height;
+      }
+
+      component.resize(width, height);
+
+      figma.currentPage.selection = [component];
+      figma.closePlugin("Component Created.");
+    }
+
+    // TODO: notify
   }
 };
