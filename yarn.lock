@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@types/figma@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/figma/-/figma-1.0.0.tgz#e06ed09d49b0f6e1a86abfa2c87f4c55898592cf"
+  integrity sha512-feUvDnjJIdDGgYWaG9mqYjS33HfTWPzcyRvY6+cp6ewFaF0WgkUOv81k7gaV8gQoKDH5hWEEBeSgzBU+mLtvkQ==
+
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"

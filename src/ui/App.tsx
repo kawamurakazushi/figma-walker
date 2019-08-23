@@ -9,7 +9,6 @@ import { Component } from "./icons/Component";
 import {
   useStoreReducer,
   filterItemsSelector,
-  modeSelector,
   send
 } from "./hooks/useStoreReducer";
 

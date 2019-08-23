@@ -6,6 +6,7 @@
   "author": "Kazushi Kawamura <wakaka2277@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/figma": "^1.0.0",
     "css-loader": "^3.0.0",
     "html-webpack-inline-source-plugin": "^0.0.10",
     "html-webpack-plugin": "^3.2.0",

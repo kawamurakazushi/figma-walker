@@ -126,6 +126,8 @@ figma.ui.onmessage = msg => {
       figma.closePlugin("Component Created.");
     }
 
+    figma.notify("ss");
+
     // TODO: notify
   }
 };
