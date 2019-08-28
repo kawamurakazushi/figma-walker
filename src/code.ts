@@ -1,3 +1,5 @@
+import "figma-plugin-types";
+
 figma.showUI(__html__, { width: 600, height: 310 });
 
 figma.ui.onmessage = msg => {
@@ -126,8 +128,6 @@ figma.ui.onmessage = msg => {
       figma.closePlugin("Component Created.");
     }
 
-    figma.notify("ss");
-
-    // TODO: notify
+    figma.notify("Please select at least one node.");
   }
 };
