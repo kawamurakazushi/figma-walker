@@ -244,8 +244,9 @@ export const useStoreReducer = () =>
           };
 
         case "NEXT": {
-          return state.selected >= filterItemsSelector(state).length - 1
-            ? { ...state, selected: 0 }
+          const lastItemIndex = filterItemsSelector(state).length - 1;
+          return state.selected >= lastItemIndex
+            ? { ...state, selected: lastItemIndex }
             : {
                 ...state,
                 selected: state.selected + 1

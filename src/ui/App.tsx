@@ -27,15 +27,15 @@ const App = () => {
 
   const items = filterItemsSelector(store);
 
+  if (downPressed || (ctrlPressed && nPressed)) {
+    dispatch({ type: "NEXT" });
+  }
+
+  if (upPressed || (ctrlPressed && pPressed)) {
+    dispatch({ type: "PREV" });
+  }
+
   useEffect(() => {
-    if (downPressed || (ctrlPressed && nPressed)) {
-      dispatch({ type: "NEXT" });
-    }
-
-    if (upPressed || (ctrlPressed && pPressed)) {
-      dispatch({ type: "PREV" });
-    }
-
     if (enterPressed) {
       send(store, dispatch);
     }
@@ -43,15 +43,7 @@ const App = () => {
     if (escPressed) {
       parent.postMessage({ pluginMessage: { type: "CLOSE" } }, "*");
     }
-  }, [
-    downPressed,
-    upPressed,
-    enterPressed,
-    ctrlPressed,
-    nPressed,
-    pPressed,
-    escPressed
-  ]);
+  }, [enterPressed, escPressed]);
 
   const input = useRef(null);
   useEffect(() => {

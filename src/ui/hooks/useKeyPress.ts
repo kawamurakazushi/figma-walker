@@ -4,6 +4,11 @@ const useKeyPress = targetKey => {
   // State for keeping track of whether key is pressed
   const [keyPressed, setKeyPressed] = useState(false);
 
+  // Only allow fetching each keypress event once to prevent infinite loops
+  if (keyPressed) {
+    setKeyPressed(false);
+  }
+
   // If pressed key is our target key then set to true
   function downHandler({ key }) {
     if (key === targetKey) {
