@@ -15,8 +15,8 @@
     "webpack-cli": "^3.3.7"
   },
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack -w"
+    "build": "webpack --mode=production",
+    "watch": "webpack --mode=development --watch"
   },
   "dependencies": {
     "preact": "10.0.0-beta.3",
