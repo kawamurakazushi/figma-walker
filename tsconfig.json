@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
+    // "noEmitHelpers": true,
+    // "importHelpers": true,
+    // "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noImplicitThis": true,
     "alwaysStrict": true,
-    "jsx": "react",
-    "target": "es5",
+    "noImplicitAny": true,
+    "lib": ["dom", "es2017"],
     "module": "commonjs",
-    "lib": ["dom", "es2015"],
-    "jsxFactory": "h",
-    "noEmitHelpers": true,
-    "importHelpers": true
+    "target": "es5",
+    "jsx": "react"
   }
 }

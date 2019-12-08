@@ -1,4 +1,4 @@
-import { useReducer } from "preact/hooks";
+import { useReducer } from "react";
 
 // Store
 
@@ -233,7 +233,7 @@ export const send = (store: Store, dispatch: (action: Action) => void) => {
 // Reducers
 
 export const useStoreReducer = () =>
-  useReducer<Store, Action>(
+  useReducer(
     (state, action) => {
       switch (action.type) {
         case "INPUT_SEARCH":

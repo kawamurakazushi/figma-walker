@@ -6,21 +6,24 @@
   "author": "Kazushi Kawamura <wakaka2277@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "css-loader": "^3.2.0",
+    "@types/react": "^16.9.15",
+    "@types/react-dom": "^16.9.4",
+    "css-loader": "^3.2.1",
     "figma-plugin-types": "^0.1.3",
     "html-webpack-inline-source-plugin": "^0.0.10",
     "html-webpack-plugin": "^3.2.0",
-    "style-loader": "^1.0.0",
-    "typescript": "^3.5.2",
-    "webpack-cli": "^3.3.7"
+    "style-loader": "^1.0.1",
+    "typescript": "^3.7.3",
+    "webpack-cli": "^3.3.10"
   },
   "scripts": {
     "build": "webpack",
     "watch": "webpack -w"
   },
   "dependencies": {
-    "preact": "10.0.0-beta.3",
-    "ts-loader": "^6.0.3",
-    "webpack": "^4.39.3"
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "ts-loader": "^6.2.1",
+    "webpack": "^4.41.2"
   }
 }

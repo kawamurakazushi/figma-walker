@@ -1,5 +1,6 @@
-import { h, render } from "preact";
-import { useRef, useEffect } from "preact/hooks";
+import * as React from "react";
+import { render } from "react-dom";
+import { useRef, useEffect } from "react";
 
 import { useKeyPress } from "./hooks/useKeyPress";
 import { Frame } from "./icons/Frame";
@@ -53,9 +54,11 @@ const App = () => {
     escPressed
   ]);
 
-  const input = useRef(null);
+  const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    input.current.focus();
+    if (input.current !== null) {
+      input.current.focus();
+    }
     parent.postMessage(
       {
         pluginMessage: { type: "FETCH_FRAMES" }
@@ -82,7 +85,7 @@ const App = () => {
     };
   }, []);
 
-  const wrapper = useRef(null);
+  const wrapper = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (wrapper.current) {
@@ -106,7 +109,7 @@ const App = () => {
     }
   }, [store.selected]);
 
-  const onResultScroll = e => {
+  const onResultScroll = (e: any) => {
     const target = e.currentTarget;
     if (target) {
       dispatch({ type: "SET_SCROLL_TOP", scrollTop: target.scrollTop });
