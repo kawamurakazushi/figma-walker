@@ -2,7 +2,7 @@ import * as React from "react";
 import { render } from "react-dom";
 import { useRef, useEffect } from "react";
 
-import { useKeyPress } from "./hooks/useKeyPress";
+import { useKeyPress, useKeysPress2 } from "./hooks/useKeyPress";
 import { Frame } from "./icons/Frame";
 import { Code } from "./icons/Code";
 import { Page } from "./icons/Page";
@@ -18,41 +18,29 @@ import "./figma-ui.min.css";
 const App = () => {
   const [store, dispatch] = useStoreReducer();
 
-  const downPressed = useKeyPress("ArrowDown");
-  const upPressed = useKeyPress("ArrowUp");
-  const enterPressed = useKeyPress("Enter");
-  const ctrlPressed = useKeyPress("Control");
-  const nPressed = useKeyPress("n");
-  const pPressed = useKeyPress("p");
-  const escPressed = useKeyPress("Escape");
+  useKeyPress("Enter", () => {
+    send(store, dispatch);
+  });
+  useKeyPress("Escape", () => {
+    parent.postMessage({ pluginMessage: { type: "CLOSE" } }, "*");
+  });
+
+  useKeyPress("ArrowUp", () => {
+    dispatch({ type: "PREV" });
+  });
+  useKeyPress("ArrowDown", () => {
+    dispatch({ type: "NEXT" });
+  });
+
+  useKeysPress2("Control", "n", () => {
+    dispatch({ type: "NEXT" });
+  });
+
+  useKeysPress2("Control", "p", () => {
+    dispatch({ type: "PREV" });
+  });
 
   const items = filterItemsSelector(store);
-
-  useEffect(() => {
-    if (downPressed || (ctrlPressed && nPressed)) {
-      dispatch({ type: "NEXT" });
-    }
-
-    if (upPressed || (ctrlPressed && pPressed)) {
-      dispatch({ type: "PREV" });
-    }
-
-    if (enterPressed) {
-      send(store, dispatch);
-    }
-
-    if (escPressed) {
-      parent.postMessage({ pluginMessage: { type: "CLOSE" } }, "*");
-    }
-  }, [
-    downPressed,
-    upPressed,
-    enterPressed,
-    ctrlPressed,
-    nPressed,
-    pPressed,
-    escPressed
-  ]);
 
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
