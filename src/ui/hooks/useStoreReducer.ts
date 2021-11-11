@@ -5,7 +5,7 @@ import { useReducer } from "react";
 export interface Item {
   id: string;
   name: string;
-  type: "PAGE" | "FRAME" | "COMPONENT" | "insert" | "create";
+  type: "PAGE" | "FRAME" | "COMPONENT" | "COMPONENT_SET"  | "insert" | "create";
   page: string | null;
 }
 
@@ -156,9 +156,9 @@ export const filterItemsSelector = (store: Store): Item[] => {
   });
 };
 
-export const componentsSelector = (store: Store): Item[] =>
-  store.items.filter(v => v.type === "COMPONENT");
-
+export const componentsSelector = (store: Store): Item[] =>{
+  return store.items.filter(v => { return v.type === 'COMPONENT_SET' || v.type ===  'COMPONENT'})
+};
 export const modeSelector = (store: Store): Mode => {
   if (store.search.indexOf(helpCmd) == 0) {
     return "help";

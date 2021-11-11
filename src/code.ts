@@ -1,4 +1,3 @@
-import "figma-plugin-types";
 
 figma.showUI(__html__, { width: 600, height: 310 });
 
@@ -37,6 +36,16 @@ figma.ui.onmessage = msg => {
     if (node.type === "COMPONENT") {
       const { x, y } = figma.viewport.center;
       const instance = node.createInstance();
+
+      instance.x = x;
+      instance.y = y;
+      figma.currentPage.appendChild(instance);
+      figma.currentPage.selection = [instance];
+    }
+
+    if (node.type === "COMPONENT_SET") {
+      const { x, y } = figma.viewport.center;
+      const instance = node.defaultVariant.createInstance();
 
       instance.x = x;
       instance.y = y;
